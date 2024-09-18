@@ -29,15 +29,15 @@ let game = {
         this.setTextFont();
         this.setEvents();
     },
-    setTextFont() {
-        this.ctx.font = "20 px Arial";
-        this.ctx.fillStyle = "#FFFFFF";
+    setTextFont(){
+        this.ctx.font = "20px Arial";
+        this.ctx.fillStyle = "#FFFFFF"
     },
     setEvents() {
         window.addEventListener("keydown", e => {
             if(e.keyCode === KEYS.SPACE) {
                 this.platform.fire();
-            } else if(e.keyCode === KEYS.LEFT || e.keyCode === KEYS.RIGHT) {
+            } else if (e.keyCode === KEYS.LEFT || e.keyCode === KEYS.RIGHT) {
                 this.platform.start(e.keyCode);
             }
         });
@@ -45,13 +45,13 @@ let game = {
             this.platform.stop();
         });
     },
-    preload(callback) {
+    preload(callback){
         let loaded = 0;
         let required = Object.keys(this.sprites).length;
         required += Object.keys(this.sounds).length;
-        
+
         let onResourceLoad = () => {
-            ++loaded;
+            ++ loaded;
             if (loaded >= required) {
                 callback();
             }
@@ -60,7 +60,7 @@ let game = {
         this.preloadSprites(onResourceLoad);
         this.preloadAudio(onResourceLoad);
     },
-    preloadSprites(onResourceLoad) {
+    preloadSprites (onResourceLoad) {
         for (let key in this.sprites) {
             this.sprites[key] = new Image();
             this.sprites[key].src = "img/" + key + ".png";
@@ -69,7 +69,7 @@ let game = {
     },
     preloadAudio(onResourceLoad) {
         for (let key in this.sounds) {
-            this.sounds[key] = new Audio("sound/" + key +".mp3");
+            this.sounds[key] = new Audio("sounds/" + key +".mp3");
             this.sounds[key].addEventListener("canplaythrough", onResourceLoad, {once: true});
         }
     },
@@ -80,7 +80,7 @@ let game = {
                     active: true,
                     width: 60,
                     height: 20,
-                    x : 64 * col + 65,
+                    x : 64 * col +65,
                     y : 24 * row + 35
                 });
             }
@@ -97,13 +97,13 @@ let game = {
     addScore() {
         ++this.score;
 
-        if (this.score >= this.blocks.length) {
-            this.end("Вы победили")
+        if (this.score>= this.blocks.length) {
+            this.end("Вы победили");
         }
     },
     collideBlocks() {
         for (let block of this.blocks) {
-            if (block.active && this.ball.collide(block)) {
+            if (block.active && this.ball.collide(block)){
                 this.ball.bumpBlock(block);
                 this.addScore();
                 this.sounds.bump.play();
@@ -121,25 +121,25 @@ let game = {
             window.requestAnimationFrame(() => {
                 this.update();
                 this.render();
-                this.run();    
+                this.run();
             });
         }
     },
     render() {
-        this.ctx.clearRect(0, 0, this.width, this.height);
+        this.ctx.clearRect(0,0,this.width, this.height);
         this.ctx.drawImage(this.sprites.background, 0, 0);
         this.ctx.drawImage(this.sprites.ball, 0, 0, this.ball.width, this.ball.height,
-            this.ball.x, this.ball.y, this.ball.width, this.ball.height);
+         this.ball.x, this.ball.y, this.ball.width, this.ball.height);
         this.ctx.drawImage(this.sprites.platform, this.platform.x, this.platform.y);
         this.renderBlocks();
         this.ctx.fillText("Score: " + this.score, 15, 20);
     },
     renderBlocks() {
         for (let block of this.blocks) {
-            if (block.active) {
-            this.ctx.drawImage(this.sprites.block, block.x, block.y); 
+            if (block.active){
+            this.ctx.drawImage(this.sprites.block, block.x, block.y);
+            }
         }
-    }
     },
     start: function() {
         this.init();
@@ -148,30 +148,40 @@ let game = {
             this.run();
         });
     },
-    end(message) {
+    end(message){
         this.running = false;
         alert(message);
         window.location.reload();
     },
     random(min, max){
-        return Math.floor(Math.random() * (max - min + 1) + min);
+        return Math.floor(Math.random() * (max-min+1) + min);
     }
 };
 
 game.ball = {
     dx: 0,
     dy: 0,
+    frame: 0,
     velocity: 3,
     x: 320,
     y: 280,
     width: 20,
     height: 20,
-    start() {
+    start(){
         this.dy = -this.velocity;
         this.dx = game.random(-this.velocity, this.velocity);
+        this.animate();
+    },
+    animate() {
+        setInterval(() => {
+            ++this.frame;
+            if (this.frame > 3){
+                this.frame = 0;
+            }
+        }, 100);
     },
     move() {
-        if (this.dy) {
+        if (this.dy){
             this.y += this.dy;
         }
         if (this.dx) {
@@ -208,15 +218,15 @@ game.ball = {
             this.x = 0;
             this.dx = this.velocity;
             game.sounds.bump.play();
-        } else if (ballRight > worldRight) {
+        } else if (ballRight > worldRight){
             this.x = worldRight - this.width;
             this.dx = -this.velocity;
             game.sounds.bump.play();
-        } else if (ballTop < worldTop) {
+        } else if (ballTop < worldTop){
             this.y = 0;
             this.dy = this.velocity;
             game.sounds.bump.play();
-        } else if (ballBottom > worldBottom) {
+        } else if (ballBottom > worldBottom){
             game.end("Вы проиграли");
         }
     },
@@ -224,14 +234,14 @@ game.ball = {
         this.dy *= -1;
         block.active = false;
     },
-    bumpPlatform(platform) {
-        if (platform.dx) {
-            this.x += platform.dx;
+    bumpPlatform(platform){
+        if(platform.dx){
+            this.dx += platform.dx;
         }
 
         if (this.dy > 0) {
             this.dy = -this.velocity;
-            let touchX = this.x + this.width / 2;
+            let touchX = this.x+ this.width / 2;
             this.dx = this.velocity * platform.getTouchOffset(touchX);
         }
     }
@@ -246,25 +256,25 @@ game.platform = {
     height: 14,
     ball: game.ball,
     fire() {
-        if (this.ball) {
+        if (this.ball){
             this.ball.start();
             this.ball = null;
         }
     },
     start(direction) {
-        if (direction === KEYS.LEFT) {
+        if (direction == KEYS.LEFT) {
             this.dx = -this.velocity;
         } else if (direction === KEYS.RIGHT) {
             this.dx = this.velocity;
         }
     },
-    stop() {
+    stop(){
         this.dx = 0;
     },
     move() {
         if (this.dx) {
             this.x += this.dx;
-            if (this.ball){
+            if (this.ball) {
                 this.ball.x += this.dx;
             }
         }
@@ -272,7 +282,7 @@ game.platform = {
     getTouchOffset(x) {
         let diff = (this.x + this.width) - x;
         let offset = this.width - diff;
-        let result = 2 * offset /this.width;
+        let result = 2 * offset / this.width;
         return result - 1;
     },
     collideWorldBounds(){
